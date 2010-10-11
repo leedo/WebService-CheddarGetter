@@ -3,14 +3,17 @@
 use Test::More; 
 
 BEGIN {
-    use_ok( 'WebService::CheddarGetter' ) || print "Bail out!
+    use_ok( 'WebService::CheddarGetter::Client' ) || print "Bail out!
 ";
 }
 
-my $cg = WebService::CheddarGetter->new(
+my $cg = WebService::CheddarGetter::Client->new(
   email => $ENV{CHEDDARGETTER_EMAIL},
   password => $ENV{CHEDDARGETTER_PASS},
-  product_code => $ENV{CHEDDARGETTER_PRODUCT},
 );
+
+my $product = $cg->product($ENV{CHEDDARGETTER_PRODUCT});
+
+$product->plans;
 
 done_testing();
