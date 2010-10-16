@@ -3,6 +3,7 @@ package WebService::CheddarGetter::Client;
 use warnings;
 use strict;
 
+use Carp;
 use Moose;
 use LWP::UserAgent;
 use WebService::CheddarGetter::Product;
@@ -72,24 +73,37 @@ sub get_product {
 }
 
 sub send_request {
-  my ($self, $path, %params) = @_;
+  my ($self, $method, $path, %params) = @_;
 
   $self->set_credentials;
 
+  if ($method !~ /^get|post$/) {
+    $method = 'get';
+  }
+
   my $uri = "https://".$self->api_host . $self->api_base . $path;
-  my $res = $self->ua->get($uri, %params);
+  my $res = $self->ua->$method($uri, \%params);
 
   if ($res->is_success) {
     my $data = eval {
       my $xml = XML::LibXML->load_xml(string => $res->content);
-      XML::LibXML::XPathContext->new($xml);
+      my $xpath = XML::LibXML::XPathContext->new($xml);
+      my $error = $xpath->findvalue("/error");
+      croak $error if $error;
+      return $xpath;
     };
-    die $@ if $@;
+    croak $@ if $@;
     return $data;
   }
   else {
     return () if $res->code == 404;
-    die $res->status_line;
+    if ($res->content) {
+      my $xml = XML::LibXML->load_xml(string => $res->content);
+      my $xpath = XML::LibXML::XPathContext->new($xml);
+      my $error = $xpath->findvalue("/error");
+      croak $error;
+    }
+    croak $res->status_line;
   }
 }
 

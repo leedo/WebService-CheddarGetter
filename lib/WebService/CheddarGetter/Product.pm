@@ -2,6 +2,7 @@ package WebService::CheddarGetter::Product;
 
 use Any::Moose;
 use WebService::CheddarGetter::Product::Plan;
+use WebService::CheddarGetter::Product::Customer;
 
 has client => (
   is => 'ro',
@@ -19,7 +20,7 @@ sub customers {
   my $self = shift;
 
   my $path = "customers/get/productCode/".$self->code;
-  my $res = $self->client->send_request($path);
+  my $res = $self->client->send_request('get', $path);
   return () unless $res;
 
   return map {
@@ -27,7 +28,7 @@ sub customers {
       element => $_,
       product => $self,
     )
-  } $res->findnodes("//customers/customer");
+  } $res->findnodes("/customers/customer");
 
 }
 
@@ -35,7 +36,7 @@ sub plans {
   my $self = shift;
 
   my $path = "plans/get/productCode/".$self->code;
-  my $res = $self->client->send_request($path);
+  my $res = $self->client->send_request('get', $path);
   return () unless $res;
 
   return map {
@@ -43,7 +44,20 @@ sub plans {
       element => $_,
       product => $self,
     )
-  } $res->findnodes("//plans/plan");
+  } $res->findnodes("/plans/plan");
+}
+
+sub create_customer {
+  my ($self, %params) = @_;
+
+  my $path = "customers/new/productCode/".$self->code;
+  my $res = $self->client->send_request('post', $path, %params);
+  die "Could not create customer" unless $res;
+
+  return WebService::CheddarGetter::Product::Customer->new(
+    element => $res,
+    product => $self,
+  );
 }
 
 1;
