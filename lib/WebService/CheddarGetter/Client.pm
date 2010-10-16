@@ -4,10 +4,10 @@ use warnings;
 use strict;
 
 use Carp;
-use Moose;
+use Any::Moose;
 use LWP::UserAgent;
-use WebService::CheddarGetter::Product;
 use XML::LibXML;
+use WebService::CheddarGetter::Product;
 
 our $VERSION = '0.01';
 
