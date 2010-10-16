@@ -47,6 +47,10 @@ has products => (
   default => sub {{}},
 );
 
+has error_msg => (
+  is => 'rw',
+);
+
 sub set_credentials {
   my $self = shift;
   $self->ua->credentials(
@@ -54,7 +58,7 @@ sub set_credentials {
   );
 }
 
-sub product {
+sub get_product {
   my ($self, $product_code) = @_;
 
   if (!$self->products->{$product_code}) {
@@ -76,13 +80,15 @@ sub send_request {
   my $res = $self->ua->get($uri, %params);
 
   if ($res->is_success) {
-    my $data = eval { XML::LibXML->load_xml(string => $res->content) };
-    if (!$@ and $data) {
-      return $data;
-    }
-    die $@;
+    my $data = eval {
+      my $xml = XML::LibXML->load_xml(string => $res->content);
+      XML::LibXML::XPathContext->new($xml);
+    };
+    die $@ if $@;
+    return $data;
   }
   else {
+    return () if $res->code == 404;
     die $res->status_line;
   }
 }
