@@ -2,8 +2,7 @@ package WebService::CheddarGetter::CachedXML;
 
 use Moose::Role;
 
-requires "xpath";
-requires "url_prefix";
+requires qw/xpath url_prefix type/;
 
 has product => (
   is => 'ro',
