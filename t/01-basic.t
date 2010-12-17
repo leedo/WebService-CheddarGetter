@@ -28,6 +28,9 @@ is $plan->setupChargeAmount, "0.00", "setup amount";
 is $plan->recurringChargeCode, "BASIC_CHAT_RECURRING", "charge code";
 is $plan->recurringChargeAmount, "6.00", "charge amount";
 
+my $plan2 = $product->get_plan($plan->code);
+is $plan->id, $plan2->id, "get_plan";
+
 my $customer = ($product->customers)[0];
 is $customer->firstName, "Lee", "first name";
 is $customer->lastName, "Aylward", "last name";
@@ -35,5 +38,8 @@ is $customer->company, "ServerCentral", "company";
 is $customer->email, 'laylward@gmail.com', "email";
 is $customer->gatewayToken, "SIMULATED", "token";
 is $customer->isVatExempt, 0, "VAT exempt";
+
+my $customer2 = $product->get_customer($customer->code);
+is $customer->id, $customer2->id, "get_customer";
 
 done_testing();
