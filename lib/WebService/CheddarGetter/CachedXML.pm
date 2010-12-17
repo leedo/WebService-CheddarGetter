@@ -48,12 +48,14 @@ sub AUTOLOAD {
   my $self = shift;
   my @args = @_;
 
-  if (!$self->cache->{$method}) {
-    my $value = $self->element->findvalue("$method", $self->element);
-    $self->cache->{$method} = $value;
+  return $self->cache->{$method} if $self->cache->{$method};
+
+  if ($self->element->exists($method)) {
+    $self->cache->{$method} = $self->element->findvalue($method);
+    return $self->cache->{$method};
   }
 
-  return $self->cache->{$method};
+  die "$method not found in XML for " . $self->type . " " . $self->code;
 }
 
 sub _refresh {
