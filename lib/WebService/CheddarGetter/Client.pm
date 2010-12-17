@@ -3,8 +3,9 @@ package WebService::CheddarGetter::Client;
 use warnings;
 use strict;
 
+use Moose;
 use Carp;
-use Any::Moose;
+use Moose;
 use LWP::UserAgent;
 use XML::LibXML;
 use WebService::CheddarGetter::Product;

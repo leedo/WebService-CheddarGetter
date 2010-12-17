@@ -15,7 +15,7 @@ WriteMakefile(
         'Test::More' => 0,
         'XML::LibXML' => 0,
         'LWP::UserAgent' => 0,
-        'Any::Moose' => 0,
+        'Moose' => 0,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'WebService-CheddarGetter-*' },

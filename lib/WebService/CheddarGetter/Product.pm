@@ -1,8 +1,8 @@
 package WebService::CheddarGetter::Product;
 
-use Any::Moose;
-use WebService::CheddarGetter::Product::Plan;
-use WebService::CheddarGetter::Product::Customer;
+use Moose;
+use WebService::CheddarGetter::Plan;
+use WebService::CheddarGetter::Customer;
 
 has client => (
   is => 'ro',
@@ -12,7 +12,6 @@ has client => (
 
 has code => (
   is => 'ro',
-  isa => 'Str',
   required => 1,
 );
 
@@ -24,12 +23,20 @@ sub customers {
   return () unless $res;
 
   return map {
-    WebService::CheddarGetter::Product::Customer->new(
+    WebService::CheddarGetter::Customer->new(
       element => $_,
       product => $self,
     )
   } $res->findnodes("/customers/customer");
 
+}
+
+sub get_customer {
+  my ($self, $code) = @_;
+  return WebService::CheddarGetter::Customer->new(
+    code    => $code,
+    product => $self,
+  );
 }
 
 sub plans {
@@ -40,11 +47,19 @@ sub plans {
   return () unless $res;
 
   return map {
-    WebService::CheddarGetter::Product::Plan->new(
+    WebService::CheddarGetter::Plan->new(
       element => $_,
       product => $self,
     )
   } $res->findnodes("/plans/plan");
+}
+
+sub get_plan {
+  my ($self, $code) = @_;
+  return WebService::CheddarGetter::Plan->new(
+    code    => $code,
+    product => $self,
+  );
 }
 
 sub create_customer {
@@ -54,7 +69,7 @@ sub create_customer {
   my $res = $self->client->send_request('post', $path, %params);
   die "Could not create customer" unless $res;
 
-  return WebService::CheddarGetter::Product::Customer->new(
+  return WebService::CheddarGetter::Customer->new(
     element => $res,
     product => $self,
   );
