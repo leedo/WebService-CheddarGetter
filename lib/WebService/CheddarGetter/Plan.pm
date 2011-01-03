@@ -6,6 +6,12 @@ has xpath => (is => 'ro', default => 'plans/plan');
 has url_prefix => (is => 'ro', default=> 'plans');
 has type => (is => 'ro', default => 'plan');
 
+has product => (
+  is => 'ro',
+  isa => 'WebService::CheddarGetter::Product',
+  required => 1,
+);
+
 has attributes => (
   is => 'ro',
   default => sub {
@@ -17,6 +23,7 @@ has attributes => (
   }
 );
 
-with "WebService::CheddarGetter::XMLObject";
+with qw/WebService::CheddarGetter::XMLObject
+        WebService::CheddarGetter::RemoteXML/;
 
 1;

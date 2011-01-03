@@ -42,4 +42,6 @@ is $customer->isVatExempt, 0, "VAT exempt";
 my $customer2 = $product->get_customer($customer->code);
 is $customer->id, $customer2->id, "get_customer";
 
+my @subs = $customer2->subscriptions;
+
 done_testing();

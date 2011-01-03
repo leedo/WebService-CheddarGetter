@@ -1,12 +1,17 @@
 package WebService::CheddarGetter::Customer;
 
 use Moose;
+use WebService::CheddarGetter::Subscription;
 
 has xpath => (is => 'ro', default => 'customers/customer');
 has url_prefix => (is => 'ro', default=> 'customers');
 has type => (is => 'ro', default => 'customer');
 
-with "WebService::CheddarGetter::XMLObject";
+has product => (
+  is => 'ro',
+  isa => 'WebService::CheddarGetter::Product',
+  required => 1,
+);
 
 has attributes => (
   is => 'ro',
@@ -17,14 +22,17 @@ has attributes => (
   }
 );
 
+with qw/WebService::CheddarGetter::XMLObject
+        WebService::CheddarGetter::RemoteXML/;
+
 sub subscriptions {
   my $self = shift;
   return map {
-    WebService::Cheddargetter::Product::Customer::Subscription->new(
+    WebService::CheddarGetter::Subscription->new(
       element  => $_,
       customer => $self,
     )
-  } $self->element->findNodes("/subscriptions/subscription", $self->element);
+  } $self->find("subscriptions/subscription");
 }
 
 1;

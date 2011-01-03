@@ -2,13 +2,7 @@ package WebService::CheddarGetter::XMLObject;
 
 use Moose::Role;
 
-requires qw/xpath url_prefix type/;
-
-has product => (
-  is => 'ro',
-  isa => 'WebService::CheddarGetter::Product',
-  required => 1,
-);
+requires qw/xpath attributes/;
 
 has element => (
   is => 'rw',
@@ -18,20 +12,10 @@ has [qw/id code/] => (
   is => 'rw',
 );
 
-has attributes => (
-  is => 'rw',
-  default => sub {[]},
-);
-
 sub BUILD {
   my $self = shift;
 
-  if (!$self->element) {
-    if (!$self->code) {
-      die "Need either code or element option!";
-    }
-    $self->_refresh_element;
-  }
+  die "No element!" unless $self->element;
 
   $self->_add_attributes;
   $self->_process_element;
@@ -49,19 +33,6 @@ sub _add_attributes {
   }
 }
 
-sub _refresh_element {
-  my $self = shift;
-
-  my $path = $self->url_prefix."/get/productCode/".$self->product->code."/code/".$self->code;
-  my $res = $self->product->client->send_request('get', $path);
-  my @nodes = $res->findnodes($self->xpath);
-
-  if (!@nodes) {
-    die "Couldn't get ".$self->type." data for: ".$self->code;
-  }
-
-  $self->element($nodes[0]);
-}
 
 sub _process_element {
   my $self = shift;
@@ -70,6 +41,12 @@ sub _process_element {
     my $name = $node->nodeName;
     $self->$name($node->textContent) if $self->meta->has_attribute($name);
   }
+}
+
+sub find {
+  my ($self, $query) = @_;
+  my $xpath = XML::LibXML::XPathContext->new($self->element);
+  return $xpath->findnodes($query);
 }
 
 1;
