@@ -6,7 +6,16 @@ has xpath => (is => 'ro', default => 'customers/customer');
 has url_prefix => (is => 'ro', default=> 'customers');
 has type => (is => 'ro', default => 'customer');
 
-with "WebService::CheddarGetter::CachedXML";
+with "WebService::CheddarGetter::XMLObject";
+
+has attributes => (
+  is => 'ro',
+  default => sub {
+    [qw/firstName lastName company email gatewayToken
+        isVatExempt
+    /]
+  }
+);
 
 sub subscriptions {
   my $self = shift;
