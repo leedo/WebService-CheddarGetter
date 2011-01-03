@@ -42,9 +42,21 @@ is $customer->isVatExempt, 0, "VAT exempt";
 my $customer2 = $product->get_customer($customer->code);
 is $customer->id, $customer2->id, "get_customer";
 
-my $sub = ($customer2->subscriptions)[0];
+my $sub = ($customer->subscriptions)[0];
 is $sub->ccCountry, "US", "cc country";
 is $sub->ccFirstName, "Lee", "cc first name";
 is $sub->ccLastName, "Aylward", "cc last name";
+
+my $customer3 = $product->create_customer(
+  code => "testuser",
+  firstName => "Test",
+  lastName => "User",
+  email => 'testuser@example.com',
+  'subscription[planCode]' => 'BASIC_CHAT',
+  'subscription[ccNumber]' => '5555555555554444',
+  'subscription[ccExpiration]' => '12/2012',
+  'subscription[ccFirstName]' => 'Test',
+  'subscription[ccLastName]' => 'User',
+);
 
 done_testing();
