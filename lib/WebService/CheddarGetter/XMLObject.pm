@@ -43,10 +43,4 @@ sub _process_element {
   }
 }
 
-sub find {
-  my ($self, $query) = @_;
-  my $xpath = XML::LibXML::XPathContext->new($self->element);
-  return $xpath->findnodes($query);
-}
-
 1;

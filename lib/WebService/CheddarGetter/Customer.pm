@@ -32,7 +32,14 @@ sub subscriptions {
       element  => $_,
       customer => $self,
     )
-  } $self->find("subscriptions/subscription");
+  } $self->element->findnodes("subscriptions/subscription");
+}
+
+sub delete {
+  my $self = shift;
+  $self->product->delete_customer($self->code);
+  my $path = $self->url_prefix . "/delete/productCode/"
+             . $self->product->code . "/code/" . $self->code;
 }
 
 1;

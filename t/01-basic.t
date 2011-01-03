@@ -47,6 +47,8 @@ is $sub->ccCountry, "US", "cc country";
 is $sub->ccFirstName, "Lee", "cc first name";
 is $sub->ccLastName, "Aylward", "cc last name";
 
+$product->delete_customer('testuser');
+
 my $customer3 = $product->create_customer(
   code => "testuser",
   firstName => "Test",
@@ -58,5 +60,9 @@ my $customer3 = $product->create_customer(
   'subscription[ccFirstName]' => 'Test',
   'subscription[ccLastName]' => 'User',
 );
+
+my $customer4 = $product->get_customer($customer3->code);
+is $customer3->id, $customer4->id, "get_customer on testuser";
+$product->delete_customer('testuser');
 
 done_testing();

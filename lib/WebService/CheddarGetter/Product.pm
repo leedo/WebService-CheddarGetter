@@ -75,4 +75,20 @@ sub create_customer {
   );
 }
 
+sub delete_customer {
+  my ($self, $code) = @_;
+  if (ref $code eq 'WebService::CheddarGetter::Customer') {
+    $code = $code->code;
+  }
+
+  my $path = "customers/delete/productCode/".$self->code."/code/$code";
+  $self->client->send_request('post', $path, productCode => $self->code);
+}
+
+sub delete_all_customers {
+  my $self = shift;
+  my $path = "customers/delete-all/confirm/1/productCode/".$self->code;
+  $self->client->send_request('post', $path, productCode => $self->code);
+}
+
 1;

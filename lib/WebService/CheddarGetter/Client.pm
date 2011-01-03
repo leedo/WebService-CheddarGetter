@@ -88,10 +88,9 @@ sub send_request {
   if ($res->is_success) {
     my $data = eval {
       my $xml = XML::LibXML->load_xml(string => $res->content);
-      my $xpath = XML::LibXML::XPathContext->new($xml);
-      my $error = $xpath->findvalue("/error");
+      my $error = $xml->findvalue("/error");
       croak $error if $error;
-      return $xpath;
+      return $xml;
     };
     croak $@ if $@;
     return $data;
@@ -100,8 +99,7 @@ sub send_request {
     return () if $res->code == 404;
     if ($res->content) {
       my $xml = XML::LibXML->load_xml(string => $res->content);
-      my $xpath = XML::LibXML::XPathContext->new($xml);
-      my $error = $xpath->findvalue("/error");
+      my $error = $xml->findvalue("/error");
       croak $error;
     }
     croak $res->status_line;
