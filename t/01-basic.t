@@ -42,6 +42,9 @@ is $customer->isVatExempt, 0, "VAT exempt";
 my $customer2 = $product->get_customer($customer->code);
 is $customer->id, $customer2->id, "get_customer";
 
-my @subs = $customer2->subscriptions;
+my $sub = ($customer2->subscriptions)[0];
+is $sub->ccCountry, "US", "cc country";
+is $sub->ccFirstName, "Lee", "cc first name";
+is $sub->ccLastName, "Aylward", "cc last name";
 
 done_testing();
