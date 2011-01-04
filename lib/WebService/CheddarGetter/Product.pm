@@ -69,8 +69,10 @@ sub create_customer {
   my $res = $self->client->send_request('post', $path, %params);
   die "Could not create customer" unless $res;
 
+  my $element = ($res->findnodes("customers/customer"))[0];
+
   return WebService::CheddarGetter::Customer->new(
-    element => $res,
+    element => $element,
     product => $self,
   );
 }

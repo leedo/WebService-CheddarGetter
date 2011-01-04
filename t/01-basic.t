@@ -61,8 +61,11 @@ my $customer3 = $product->create_customer(
   'subscription[ccLastName]' => 'User',
 );
 
+is $customer3->code, "testuser", "new customer code";
+
 my $customer4 = $product->get_customer($customer3->code);
-is $customer3->id, $customer4->id, "get_customer on testuser";
+is $customer3->code, $customer4->code, "get_customer for new customer";
+
 $product->delete_customer('testuser');
 
 done_testing();
