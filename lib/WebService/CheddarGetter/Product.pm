@@ -65,13 +65,6 @@ sub get_plan {
 sub create_customer {
   my ($self, %params) = @_;
 
-  if (exists $params{subscription} and ref $params{subscription} eq 'HASH') {
-    for (keys %{ $params{subscription} }) {
-      $params{"subscription[$_]"} = $params{subscription}->{$_};
-    }
-    delete $params{subscription};
-  }
-
   my $path = "customers/new/productCode/".$self->code;
   my $res = $self->client->send_request('post', $path, %params);
   die "Could not create customer" unless $res;
@@ -86,6 +79,7 @@ sub create_customer {
 
 sub delete_customer {
   my ($self, $code) = @_;
+
   if (ref $code eq 'WebService::CheddarGetter::Customer') {
     $code = $code->code;
   }

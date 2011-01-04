@@ -83,7 +83,7 @@ sub send_request {
   }
 
   my $uri = "https://".$self->api_host . $self->api_base . $path;
-  my $res = $self->ua->$method($uri, \%params);
+  my $res = $self->ua->$method($uri, _sanitize_params(\%params));
 
   if ($res->is_success) {
     my $data = eval {
@@ -104,6 +104,21 @@ sub send_request {
     }
     croak $res->status_line;
   }
+}
+
+sub _sanitize_params {
+  my $params = shift;
+
+  for my $field (keys %$params) {
+    if (ref $params->{$field} eq 'HASH') {
+      for (keys %{ $params->{$field} }) {
+        $params->{"$field\[$_]"} = $params->{$field}{$_};
+      }
+      delete $params->{$field};
+    }
+  }
+
+  return $params;
 }
 
 =head1 NAME
