@@ -66,6 +66,10 @@ is $customer3->code, "testuser", "new customer code";
 my $customer4 = $product->get_customer($customer3->code);
 is $customer3->code, $customer4->code, "get_customer for new customer";
 
+$customer3->update_info(firstName => "User", lastName => "Test");
+is $customer3->firstName, "User", "new first name";
+is $customer3->lastName, "Test", "new first name";
+
 $product->delete_customer('testuser');
 
 done_testing();

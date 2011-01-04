@@ -12,27 +12,18 @@ has [qw/id code/] => (
   is => 'rw',
 );
 
-sub BUILD {
+after element => sub {
   my $self = shift;
+  $self->_process_element if @_;
+};
 
-  die "No element!" unless $self->element;
-
-  $self->_add_attributes;
-  $self->_process_element;
-
-  my $id = $self->element->findvalue('@id', $self->element);
-  my $code = $self->element->findvalue('@code', $self->element);
-  $self->id($id);
-  $self->code($code);
-}
-
-sub _add_attributes {
+sub BUILD {
   my $self = shift;
   for my $attr (@{ $self->attributes }) {
     $self->meta->add_attribute($attr, {is => 'rw'});
   }
+  $self->_process_element if $self->element;
 }
-
 
 sub _process_element {
   my $self = shift;
@@ -41,6 +32,11 @@ sub _process_element {
     my $name = $node->nodeName;
     $self->$name($node->textContent) if $self->meta->has_attribute($name);
   }
+
+  my $id = $self->element->findvalue('@id', $self->element);
+  my $code = $self->element->findvalue('@code', $self->element);
+  $self->id($id);
+  $self->code($code);
 }
 
 1;

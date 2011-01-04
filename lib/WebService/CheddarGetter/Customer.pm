@@ -38,8 +38,15 @@ sub subscriptions {
 sub delete {
   my $self = shift;
   $self->product->delete_customer($self->code);
-  my $path = $self->url_prefix . "/delete/productCode/"
-             . $self->product->code . "/code/" . $self->code;
+}
+
+sub update_info {
+  my ($self, %params) = @_;
+  my $path = "customers/edit-customer/productCode/"
+             .$self->product->code."/code/".$self->code;
+  my $res = $self->product->client->send_request("post", $path, %params);
+  my $element = ($res->findnodes($self->xpath))[0];
+  $self->element($element);
 }
 
 1;
