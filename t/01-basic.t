@@ -60,11 +60,13 @@ subtest "create customer" => sub {
     firstName => "Test",
     lastName => "User",
     email => 'testuser@example.com',
-    'subscription[planCode]' => 'BASIC_CHAT',
-    'subscription[ccNumber]' => '5555555555554444',
-    'subscription[ccExpiration]' => '12/2012',
-    'subscription[ccFirstName]' => 'Test',
-    'subscription[ccLastName]' => 'User',
+    subscription => {
+      planCode => 'BASIC_CHAT',
+      ccNumber => '5555555555554444',
+      ccExpiration => '12/2012',
+      ccFirstName => 'Test',
+      ccLastName => 'User',
+    }
   );
 
   is $customer->code, "testuser", "new customer code";
