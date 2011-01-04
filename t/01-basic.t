@@ -14,62 +14,73 @@ my $cg = WebService::CheddarGetter::Client->new(
 
 my $product = $cg->get_product($ENV{CHEDDARGETTER_PRODUCT});
 
-my $plan = ($product->plans)[0];
-is $plan->code, "BASIC_CHAT", "code";
-is $plan->isActive, 1, "active";
-is $plan->name, "Basic Chat", "name";
-is $plan->isFree, 0, "is free";
-is $plan->trialDays, 0, "trial days";
-is $plan->billingFrequency, "monthly", "billing frequency";
-is $plan->billingFrequencyPer, "month", "frequency per";
-is $plan->billingFrequencyUnit, "months", "frequency unit";
-is $plan->billingFrequencyQuantity, 1, "frequency quantity";
-is $plan->setupChargeAmount, "0.00", "setup amount";
-is $plan->recurringChargeCode, "BASIC_CHAT_RECURRING", "charge code";
-is $plan->recurringChargeAmount, "6.00", "charge amount";
+subtest "product plans" => sub {
+  my $plan = ($product->plans)[0];
+  is $plan->code, "BASIC_CHAT", "code";
+  is $plan->isActive, 1, "active";
+  is $plan->name, "Basic Chat", "name";
+  is $plan->isFree, 0, "is free";
+  is $plan->trialDays, 0, "trial days";
+  is $plan->billingFrequency, "monthly", "billing frequency";
+  is $plan->billingFrequencyPer, "month", "frequency per";
+  is $plan->billingFrequencyUnit, "months", "frequency unit";
+  is $plan->billingFrequencyQuantity, 1, "frequency quantity";
+  is $plan->setupChargeAmount, "0.00", "setup amount";
+  is $plan->recurringChargeCode, "BASIC_CHAT_RECURRING", "charge code";
+  is $plan->recurringChargeAmount, "6.00", "charge amount";
 
-my $plan2 = $product->get_plan($plan->code);
-is $plan->id, $plan2->id, "get_plan";
+  my $plan2 = $product->get_plan($plan->code);
+  is $plan->id, $plan2->id, "get_plan";
+};
 
-my $customer = ($product->customers)[0];
-is $customer->firstName, "Lee", "first name";
-is $customer->lastName, "Aylward", "last name";
-is $customer->company, "ServerCentral", "company";
-is $customer->email, 'laylward@gmail.com', "email";
-is $customer->gatewayToken, "SIMULATED", "token";
-is $customer->isVatExempt, 0, "VAT exempt";
+subtest "existing customer" => sub {
+  my $customer = ($product->customers)[0];
+  is $customer->firstName, "Lee", "first name";
+  is $customer->lastName, "Aylward", "last name";
+  is $customer->company, "ServerCentral", "company";
+  is $customer->email, 'laylward@gmail.com', "email";
+  is $customer->gatewayToken, "SIMULATED", "token";
+  is $customer->isVatExempt, 0, "VAT exempt";
 
-my $customer2 = $product->get_customer($customer->code);
-is $customer->id, $customer2->id, "get_customer";
+  my $customer2 = $product->get_customer($customer->code);
+  is $customer->id, $customer2->id, "get_customer";
 
-my $sub = ($customer->subscriptions)[0];
-is $sub->ccCountry, "US", "cc country";
-is $sub->ccFirstName, "Lee", "cc first name";
-is $sub->ccLastName, "Aylward", "cc last name";
+  my $sub = ($customer->subscriptions)[0];
+  is $sub->ccCountry, "US", "cc country";
+  is $sub->ccFirstName, "Lee", "cc first name";
+  is $sub->ccLastName, "Aylward", "cc last name";
+};
 
-$product->delete_customer('testuser');
+subtest "create customer" => sub {
 
-my $customer3 = $product->create_customer(
-  code => "testuser",
-  firstName => "Test",
-  lastName => "User",
-  email => 'testuser@example.com',
-  'subscription[planCode]' => 'BASIC_CHAT',
-  'subscription[ccNumber]' => '5555555555554444',
-  'subscription[ccExpiration]' => '12/2012',
-  'subscription[ccFirstName]' => 'Test',
-  'subscription[ccLastName]' => 'User',
-);
+  $product->delete_customer('testuser');
 
-is $customer3->code, "testuser", "new customer code";
+  my $customer = $product->create_customer(
+    code => "testuser",
+    firstName => "Test",
+    lastName => "User",
+    email => 'testuser@example.com',
+    'subscription[planCode]' => 'BASIC_CHAT',
+    'subscription[ccNumber]' => '5555555555554444',
+    'subscription[ccExpiration]' => '12/2012',
+    'subscription[ccFirstName]' => 'Test',
+    'subscription[ccLastName]' => 'User',
+  );
 
-my $customer4 = $product->get_customer($customer3->code);
-is $customer3->code, $customer4->code, "get_customer for new customer";
+  is $customer->code, "testuser", "new customer code";
+  is $customer->firstName, "Test", "new customer first name";
+  is $customer->lastName, "User", "new customer last name";
 
-$customer3->update_info(firstName => "User", lastName => "Test");
-is $customer3->firstName, "User", "new first name";
-is $customer3->lastName, "Test", "new first name";
+  my $customer2 = $product->get_customer($customer->code);
+  is $customer->code, $customer2->code, "get_customer for new customer";
+};
 
-$product->delete_customer('testuser');
+subtest "update customer" => sub {
+  my $customer = $product->get_customer("testuser");
+  $customer->update_info(firstName => "User", lastName => "Test");
+  is $customer->firstName, "User", "updated first name";
+  is $customer->lastName, "Test", "updated last name";
+  $product->delete_customer('testuser');
+};
 
 done_testing();
