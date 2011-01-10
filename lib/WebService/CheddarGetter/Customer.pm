@@ -22,17 +22,41 @@ has attributes => (
   }
 );
 
+has _subscription => (
+  is => 'rw',
+  isa => 'WebService::CheddarGetter::Subscription',
+);
+
 with qw/WebService::CheddarGetter::XMLObject
         WebService::CheddarGetter::RemoteXML/;
 
-sub subscriptions {
+after element => sub {
   my $self = shift;
-  return map {
-    WebService::CheddarGetter::Subscription->new(
-      element  => $_,
+  if (@_ and $self->_subscription) {
+    if (my $element = $self->subscription_element) {
+      $self->subscription->element($element);
+    }
+  }
+};
+
+sub subscription {
+  my $self = shift;
+  return $self->_subscription if $self->_subscription;
+
+  if (my $element = $self->subscription_element) {
+    my $sub = WebService::CheddarGetter::Subscription->new(
+      element => $element,
       customer => $self,
-    )
-  } $self->element->findnodes("subscriptions/subscription");
+    );
+    $self->_subscription($sub);
+    return $sub;
+  }
+}
+
+sub subscription_element {
+  my $self = shift;
+  my @nodes = $self->element->findnodes("subscriptions/subscription");
+  return $nodes[0] if @nodes;
 }
 
 sub delete {
@@ -40,7 +64,7 @@ sub delete {
   $self->product->delete_customer($self->code);
 }
 
-sub update_info {
+sub update {
   my ($self, %params) = @_;
   my $path = "customers/edit-customer/productCode/"
              .$self->product->code."/code/".$self->code;

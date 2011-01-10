@@ -45,7 +45,7 @@ subtest "existing customer" => sub {
   my $customer2 = $product->get_customer($customer->code);
   is $customer->id, $customer2->id, "get_customer";
 
-  my $sub = ($customer->subscriptions)[0];
+  my $sub = $customer->subscription;
   is $sub->ccCountry, "US", "cc country";
   is $sub->ccFirstName, "Lee", "cc first name";
   is $sub->ccLastName, "Aylward", "cc last name";
@@ -77,9 +77,17 @@ subtest "create customer" => sub {
   is $customer->code, $customer2->code, "get_customer for new customer";
 };
 
+subtest "update subscription" => sub {
+  my $customer = $product->get_customer("testuser");
+  my $subscription = $customer->subscription;
+  $subscription->update(ccFirstName => "User", ccLastName => "Test");
+  is $subscription->ccFirstName, "User", "new cc first name";
+  is $subscription->ccLastName, "Test", "new cc last name";
+};
+
 subtest "update customer" => sub {
   my $customer = $product->get_customer("testuser");
-  $customer->update_info(firstName => "User", lastName => "Test");
+  $customer->update(firstName => "User", lastName => "Test");
   is $customer->firstName, "User", "updated first name";
   is $customer->lastName, "Test", "updated last name";
   $product->delete_customer('testuser');
