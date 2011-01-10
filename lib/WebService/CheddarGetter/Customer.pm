@@ -69,8 +69,8 @@ sub update {
   my $path = "customers/edit-customer/productCode/"
              .$self->product->code."/code/".$self->code;
   my $res = $self->product->client->send_request("post", $path, %params);
-  my $element = ($res->findnodes($self->xpath))[0];
-  $self->element($element);
+  my @nodes = $res->findnodes($self->xpath);
+  $self->element($nodes[0]) if @nodes;
 }
 
 1;
