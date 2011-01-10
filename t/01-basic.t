@@ -33,24 +33,6 @@ subtest "product plans" => sub {
   is $plan->id, $plan2->id, "get_plan";
 };
 
-subtest "existing customer" => sub {
-  my $customer = ($product->customers)[0];
-  is $customer->firstName, "Lee", "first name";
-  is $customer->lastName, "Aylward", "last name";
-  is $customer->company, "ServerCentral", "company";
-  is $customer->email, 'laylward@gmail.com', "email";
-  is $customer->gatewayToken, "SIMULATED", "token";
-  is $customer->isVatExempt, 0, "VAT exempt";
-
-  my $customer2 = $product->get_customer($customer->code);
-  is $customer->id, $customer2->id, "get_customer";
-
-  my $sub = $customer->subscription;
-  is $sub->ccCountry, "US", "cc country";
-  is $sub->ccFirstName, "Lee", "cc first name";
-  is $sub->ccLastName, "Aylward", "cc last name";
-};
-
 subtest "create customer" => sub {
 
   $product->delete_customer('testuser');
