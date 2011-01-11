@@ -61,10 +61,16 @@ subtest "create customer" => sub {
 
 subtest "update subscription" => sub {
   my $customer = $product->get_customer("testuser");
-  my $subscription = $customer->subscription;
+  my $subscription = $customer->active_subscription;
   $subscription->update(ccFirstName => "User", ccLastName => "Test");
   is $subscription->ccFirstName, "User", "new cc first name";
   is $subscription->ccLastName, "Test", "new cc last name";
+};
+
+subtest "remove subscription" => sub {
+  my $customer = $product->get_customer("testuser");
+  $customer->cancel_subscription;
+  ok !$customer->active_subscription, "subscription is gone";
 };
 
 subtest "update customer" => sub {

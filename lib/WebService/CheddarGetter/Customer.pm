@@ -24,7 +24,7 @@ has attributes => (
 
 has _subscription => (
   is => 'rw',
-  isa => 'WebService::CheddarGetter::Subscription',
+  isa => 'WebService::CheddarGetter::Subscription|Undef',
 );
 
 with qw/WebService::CheddarGetter::XMLObject
@@ -39,24 +39,32 @@ after element => sub {
   }
 };
 
-sub subscription {
+sub active_subscription {
   my $self = shift;
-  return $self->_subscription if $self->_subscription;
 
-  if (my $element = $self->subscription_element) {
-    my $sub = WebService::CheddarGetter::Subscription->new(
+  my ($element) = $self->subscription_elements;
+  if ($element) {
+    return WebService::CheddarGetter::Subscription->new(
       element => $element,
       customer => $self,
     );
-    $self->_subscription($sub);
-    return $sub;
   }
 }
 
-sub subscription_element {
+sub subscriptions {
+  my $self = shift;
+  
+  return map {
+    WebService::CheddarGetter::Subscription->new(
+      element => $element,
+      customer => $self,
+    );
+  } $self->subscription_elements;
+}
+
+sub subscription_elements {
   my $self = shift;
   my @nodes = $self->element->findnodes("subscriptions/subscription");
-  return $nodes[0] if @nodes;
 }
 
 sub delete {
@@ -71,6 +79,23 @@ sub update {
   my $res = $self->product->client->send_request("post", $path, %params);
   my @nodes = $res->findnodes($self->xpath);
   $self->element($nodes[0]) if @nodes;
+}
+
+sub update_with_subscription {
+  my ($self, %params) = @_;
+  my $path = "customers/edit/productCode/"
+             .$self->product->code."/code/".$self->code;
+  my $res = $self->product->client->send_request("post", $path, %params);
+  my @nodes = $res->findnodes($self->xpath);
+  $self->element($nodes[0]) if @nodes;
+}
+
+sub cancel_subscription {
+  my $self = shift;
+  my $path = "customers/cancel/productCode/"
+             .$self->product->code."/code/".$self->code;
+  my $res = $self->product->client->send_request("get", $path);
+  $self->_subscription(undef);
 }
 
 1;
